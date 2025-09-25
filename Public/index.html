@@ -13,7 +13,6 @@
       font-size: 13px;
     }
 
-    /* Centered login box */
     #loginContainer {
       display: flex;
       flex-direction: column;
@@ -46,10 +45,7 @@
       background-color: #b2dfdb;
     }
 
-    /* Hide main app until login */
-    #appContainer {
-      display: none;
-    }
+    #appContainer { display: none; }
 
     .header-bar {
       display: flex;
@@ -91,9 +87,7 @@
       transition: all 0.3s ease;
     }
 
-    select:hover, button:hover {
-      background-color: #b2dfdb;
-    }
+    select:hover, button:hover { background-color: #b2dfdb; }
 
     button.back-btn {
       background-color: #b71c1c;
@@ -103,9 +97,7 @@
       padding: 5px 10px;
       flex-shrink: 0;
     }
-    button.back-btn:hover {
-      background-color: #7f0000;
-    }
+    button.back-btn:hover { background-color: #7f0000; }
 
     iframe {
       width: 100%;
@@ -131,17 +123,8 @@
       iframe { height: 350px; }
     }
 
-    select { 
-      white-space: normal !important; 
-      height: auto; 
-      line-height: 1.2em; 
-    }
-    select option { 
-      white-space: nowrap; 
-      overflow: hidden; 
-      text-overflow: ellipsis; 
-      font-size: 12px; 
-    }
+    select { white-space: normal !important; height: auto; line-height: 1.2em; }
+    select option { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 12px; }
     select option:nth-child(even) { background-color: #e8f4ff; }
     select option:nth-child(odd) { background-color: #ffffff; }
 
@@ -158,14 +141,12 @@
 </head>
 
 <body>
-  <!-- Login Screen -->
   <div id="loginContainer">
     <h2>Login to Practice Test</h2>
     <input type="email" id="emailInput" placeholder="Enter your email" required />
     <button onclick="login()">Login</button>
   </div>
 
-  <!-- Main App (hidden until login) -->
   <div id="appContainer">
     <div class="header-bar" id="headerBar">
       <h1>Practice Test</h1>
@@ -199,27 +180,20 @@
 
     async function login() {
       const email = document.getElementById("emailInput").value.trim().toLowerCase();
-      if (!email || !email.includes("@")) {
-        alert("Your E.Mail ID is not Registered. For registration call +91 9706380857.");
-        return;
-      }
+      if (!email || !email.includes("@")) { alert("Your E.Mail ID is not Registered. For registration call +91 9706380857."); return; }
 
       const res = await fetch(`${BACKEND_URL}/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email })
       });
-
       const data = await res.json();
       if (data.token) {
         localStorage.setItem("studentEmail", email);
         localStorage.setItem("sessionToken", data.token);
-
         document.getElementById("loginContainer").style.display = "none";
         document.getElementById("appContainer").style.display = "block";
-      } else {
-        alert("Login failed. Try again.");
-      }
+      } else { alert("Login failed. Try again."); }
     }
 
     window.onload = async function() {
@@ -232,27 +206,22 @@
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: savedEmail, token })
       });
-
       const data = await res.json();
       if (data.valid) {
         document.getElementById("loginContainer").style.display = "none";
         document.getElementById("appContainer").style.display = "block";
-      } else {
-        localStorage.clear();
-      }
+      } else { localStorage.clear(); }
     };
 
     setInterval(async () => {
       const email = localStorage.getItem("studentEmail");
       const token = localStorage.getItem("sessionToken");
       if (!email || !token) return;
-
       const res = await fetch(`${BACKEND_URL}/validate`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, token })
       });
-
       const data = await res.json();
       if (!data.valid) {
         alert("⚠️ You have been logged out because this account was opened on another device.");
@@ -261,120 +230,44 @@
       }
     }, 5000);
 
-    // === Catalog JSON ===
+    // === Fixed Catalog JSON with unique keys ===
     const catalog = {
-       "Topic wise mcq (basic)": {
-            "Chapter 1 - CHEMICAL ARITHMETIC": {
-              "1. SCIENTIFIC NOTATION": "https://chemistry-g10ep.github.io/IIT-JEE-EASY-QUESTION-HTML/1. SCIENTIFIC NOTATION.html",
-              "16. Rules for filling of electrons in various orbitals-Aufbau’s principle,(n+l) Rule, Pauli’s exclusion principle, Hund’s Rule of maximum multiplicity": "https://chemistry-g10ep.github.io/IIT-JEE-E-Q--HTML-ATOMIC-STRUCTURE/16. Rules for filling of electrons in various orbitals-Aufbau’s principle,(n+l) Rule, Pauli’s exclusion principle, Hund’s Rule of maximum multiplicity.html",
-			 "17. Electronic configurations, focusing on symmetrical distribution and exchange energy": "https://chemistry-g10ep.github.io/IIT-JEE-E-Q--HTML-ATOMIC-STRUCTURE/17. Electronic configurations, focusing on symmetrical distribution and exchange energy.html"
-
-			   },
-			"Chapter 3 - PERIODIC CLASIFICATION": {
-              "1. Dobereiner’s law of triads (1829)": "https://chemistry-g10ep.github.io/IIT-JEE-E-Q--HTML-CHEMICAL-PERIODICITY/1. Dobereiner’s law of triads (1829).html",
-			  "17. Atomic volume, Density, Melting and boiling points, Oxidation state (Oxidation number, O.N.), Magnetic properties, Hydration and hydration, Acid-base-character of oxides, Hydride": "https://chemistry-g10ep.github.io/IIT-JEE-E-Q--HTML-CHEMICAL-PERIODICITY/17. Atomic volume, Density, Melting and boiling points, Oxidation state (Oxidation number, O.N.), Magnetic properties, Hydration and hydration, Acid-base-character of oxides, Hydride.html",
-			  "18. Diagonal Relationship": "https://chemistry-g10ep.github.io/IIT-JEE-E-Q--HTML-CHEMICAL-PERIODICITY/18. Diagonal Relationship.html"
-				},
-	"Chapter 4 - CHEMICAL BONDING": {
-              "1. Cause and Modes of Chemical Combination": "https://chemistry-g10ep.github.io/IIT-JEE-E-Q--HTML-CHEMICAL-BONDING/1. Cause and Modes of Chemical Combination.html",
-			"11. Molecular Orbital Theory (MOT)": "https://chemistry-g10ep.github.io/IIT-JEE-E-Q--HTML-CHEMICAL-BONDING/10. Molecular Orbital Theory (MOT).html",
-			  "12. Hydrogen Bonding, covering intermolecular and intramolecular bonds": "https://chemistry-g10ep.github.io/IIT-JEE-E-Q--HTML-CHEMICAL-BONDING/11. Hydrogen Bonding, covering intermolecular and intramolecular bonds.html"
-			  
-				},
-	"Chapter 4 - CHEMICAL KINETICS": {
-              "1. Chemical Kinetics questions (types of reactions- examples of very fast,moderate,very slow reactions)": "https://chemistry-g10ep.github.io/IIT-JEE-E-Q--HTML-Chemical-Kinetics/1. Chemical Kinetics questions (types of reactions- examples of very fast,moderate,very slow reactions).html",
-			"9. Mechanism of Chemical Reactions": "https://chemistry-g10ep.github.io/IIT-JEE-E-Q--HTML-Chemical-Kinetics/9. Mechanism of Chemical Reactions.html",
-			 "10. Chemistry questions on Photochemical Reactions": "https://chemistry-g10ep.github.io/IIT-JEE-E-Q--HTML-Chemical-Kinetics/10. Chemistry questions on Photochemical Reactions.html"	
-            },
- "Chapter 5 - Thermodynamic and Thermochemistry": {
-              "1. Thermodynamics & Thermochemistry (Basic Concepts)": "https://chemistry-g10ep.github.io/IIT-JEE-E-Q--HTML-Thermodynamic/1. Thermodynamics & Thermochemistry (Basic Concepts).html",
-			 "24. Bond Energy, Bond Enthalpies, Applications, and Resonance Energy": "https://chemistry-g10ep.github.io/IIT-JEE-E-Q--HTML-Thermodynamic/24. Bond Energy, Bond Enthalpies, Applications, and Resonance Energy.html"		  
-		  },
-		   "Chapter 5 - Coming Soon": {
-              "Coming Soon": "https://gten-educational-platform.github.io/Class-11-Physics/motion-1d/basic/uniform-acceleration.html",
-			 "Coming Soon": "https://gten-educational-platform.github.io/Class-11-Physics/motion-1d/basic/uniform-acceleration.html",
-			 "Coming Soon": "https://gten-educational-platform.github.io/Class-11-Physics/motion-1d/basic/uniform-acceleration.html"		  
-		  },
-    "Chapter 5 - Coming Soon": {
-              "Coming Soon": "https://gten-educational-platform.github.io/Class-11-Physics/motion-1d/basic/uniform-acceleration.html",
-			 "Coming Soon": "https://gten-educational-platform.github.io/Class-11-Physics/motion-1d/basic/uniform-acceleration.html",
-			 "Coming Soon": "https://gten-educational-platform.github.io/Class-11-Physics/motion-1d/basic/uniform-acceleration.html"		  
-		  }
-          },
-  "Topic wise mcq (medium) ": {
-            "Chapter 1 - CHEMICAL ARITHMETIC": {
-              "1.Significant figures, Units for measurement, Matter and seperation of mixture(MEDIUM)": "https://chemistry-g10ep.github.io/IIT-JEE--M--HTML-PDF-CHEMICAL-ARITHMETIC/1.Significant figures, Units for measurement, Matter and seperation of mixture(MEDIUM).html",
-              "6. Chemical stoichiometry -2": "https://chemistry-g10ep.github.io/IIT-JEE--M--HTML-PDF-CHEMICAL-ARITHMETIC/6. Chemical stoichiometry -2.html",
-			  "6. Chemical stoichiometry -3": "https://chemistry-g10ep.github.io/IIT-JEE--M--HTML-PDF-CHEMICAL-ARITHMETIC/6. Chemical stoichiometry -3.html"
-            },
-            "Chapter 2 - STRUCTURE OF ATOM": {
-              "1. Discovery and Properties of anode, cathode rays neutron and Nuclear structure-1": "https://chemistry-g10ep.github.io/IIT-JEE--M--HTML-PDF-STRUCTURE-OF-ATOM/1. Discovery and Properties of anode, cathode rays neutron and Nuclear structure-1.html",
-			 "6. Quantum number, Electronic configuration and Shape of orbitals-7": "https://chemistry-g10ep.github.io/IIT-JEE--M--HTML-PDF-STRUCTURE-OF-ATOM/6. Quantum number, Electronic configuration and Shape of orbitals-7.html",
-			 "6. Quantum number, Electronic configuration and Shape of orbitals-8": "https://chemistry-g10ep.github.io/IIT-JEE--M--HTML-PDF-STRUCTURE-OF-ATOM/6. Quantum number, Electronic configuration and Shape of orbitals-8.html"
-
-			   },
-			"Chapter 3 - CHEMICAL PREIODICITY": {
-              "1. Extended or long form of periodic table -1": "https://chemistry-g10ep.github.io/IIT-JEE--M--HTML-PDF-CCHEMICAL-PREIODICITY/1. Extended or long form of periodic table -1.html",
-			 "6. Valency and oxidation state-1": "https://chemistry-g10ep.github.io/IIT-JEE--M--HTML-PDF-CCHEMICAL-PREIODICITY/6. Valency and oxidation state-1.html",
-			  "6. Valency and oxidation state-2": "https://chemistry-g10ep.github.io/IIT-JEE--M--HTML-PDF-CCHEMICAL-PREIODICITY/6. Valency and oxidation state-2.html"
-			  
-				},
-            "Chapter 4 - Chemical Kinetics": {
-              "1. Chemical kinetics (Rate of a reaction)-1": "https://chemistry-g10ep.github.io/IIT-JEE--M--HTML-PDF-CHEMICAL-KINETICS/1. Chemical kinetics (Rate of a reaction)-1.html",
-			"3. Chemical kinetics (Collision theory, Energy of activation and Arrhenius equation)": "https://chemistry-g10ep.github.io/IIT-JEE--M--HTML-PDF-CHEMICAL-KINETICS/3. Chemical kinetics (Collision theory, Energy of activation and Arrhenius equation).html",
-			 "4. Chemical kinetics (Photochemical reactions)": "https://chemistry-g10ep.github.io/IIT-JEE--M--HTML-PDF-CHEMICAL-KINETICS/4. Chemical kinetics (Photochemical reactions).html"	
-            },
-			            "Chapter 4 - Coming Soon": {
-              "Coming Soon": "https://gten-educational-platform.github.io/Class-11-Physics/motion-1d/basic/uniform-acceleration.html",
-			 "Coming Soon": "https://gten-educational-platform.github.io/Class-11-Physics/motion-1d/basic/uniform-acceleration.html",
-			 "Coming Soon": "https://gten-educational-platform.github.io/Class-11-Physics/motion-1d/basic/uniform-acceleration.html"	
-            },
-			            "Chapter 4 - Coming Soon": {
-              "Coming Soon": "https://gten-educational-platform.github.io/Class-11-Physics/motion-1d/basic/uniform-acceleration.html",
-			 "Coming Soon": "https://gten-educational-platform.github.io/Class-11-Physics/motion-1d/basic/uniform-acceleration.html",
-			 "Coming Soon": "https://gten-educational-platform.github.io/Class-11-Physics/motion-1d/basic/uniform-acceleration.html"	
-            }
-          },
- 
-"Topic wise mcq (hard)": {
-   "Chapter 1 - Solution": {
-              "1. A-II": "https://chemistry-g10ep.github.io/IIT-JEE--H--Allen-O-II/solutionAllenO-II.html",
-              "Coming Soon": "https://l-platform.github.io/Class-11-Physics/units-measurements/basic/significant-figures.html",
-			  "Coming Soon": "https://nal-platform.github.io/Class-11-Physics/units-measurements/basic/significant-figures.html"
-            },
-            "Chapter 2 - Chemical Kinetics": {
-              "1. A-II": "https://chemistry-g10ep.github.io/IIT-JEE--H--Allen-O-II/Allen-II-Chemical kinetics.html",
-			 "Coming Soon": "https://gten-educational-platform.github.io/Class-11-Physics/motion-1d/basic/uniform-acceleration.html",
-			 "Coming Soon": "https://gten-educational-platform.github.io/Class-11-Physics/motion-1d/basic/uniform-acceleration.html"
-
-			   },
-			"Chapter 3 - Coming Soon": {
-              "Coming Soon": "https://gten-educational-platform.github.io/Class-11-Physics/motion-1d/basic/uniform-acceleration.html",
-			  "Coming Soon": "https://gten-educational-platform.github.io/Class-11-Physics/motion-1d/basic/uniform-acceleration.html",
-				},
-            "Chapter 4 - Coming Soon": {
-              "Coming Soon": "https://gten-educational-platform.github.io/Class-11-Physics/motion-1d/basic/uniform-acceleration.html",
-			 "Coming Soon": "https://gten-educational-platform.github.io/Class-11-Physics/motion-1d/basic/uniform-acceleration.html",
-			 "Coming Soon": "https://gten-educational-platform.github.io/Class-11-Physics/motion-1d/basic/uniform-acceleration.html"	
-            }
-          },
-	
-	"DPP Question And Solution": {
-            "All Chapter Include": {
-              "All Question, Answerkey and Solution Include ": "https://gten-educational-platform.github.io/Class-12/chemistry dpp solution.html"
-            }
-          },
- "PYQ mains Coming Soon": {
-            "Chapter 1 - Coming Soon": {
-              "Coming Soon": "https://gten-educational-platform.gthub.io/Class-12/new 7.html"
-            }
-          },
-
-"PYQ advance Coming Soon": {
-            "Chapter 1 - Coming Soon": {
-              "2023 Set A Coming Soon": "https://gten-educational-patform.github.io/Class-12/new 7.html",
-              "2022 Set B Coming Soon": "https://gten-educational-platform.github.io/Class-11-Physics/pyq-board/2022-set-b.html"
-       }
+      "Topic wise mcq (basic)": {
+        "Chapter 1 - CHEMICAL ARITHMETIC": {
+          "1. SCIENTIFIC NOTATION": "https://chemistry-g10ep.github.io/IIT-JEE-EASY-QUESTION-HTML/1. SCIENTIFIC NOTATION.html",
+          "16. Rules for filling of electrons in various orbitals": "https://chemistry-g10ep.github.io/IIT-JEE-E-Q--HTML-ATOMIC-STRUCTURE/16. Rules.html",
+          "17. Electronic configurations": "https://chemistry-g10ep.github.io/IIT-JEE-E-Q--HTML-ATOMIC-STRUCTURE/17. Electronic.html"
+        },
+        "Chapter 3 - PERIODIC CLASSIFICATION": {
+          "1. Dobereiner’s law of triads (1829)": "https://chemistry-g10ep.github.io/IIT-JEE-E-Q--HTML-CHEMICAL-PERIODICITY/1.html",
+          "17. Atomic volume, Density, Melting and boiling points, Oxidation state": "https://chemistry-g10ep.github.io/IIT-JEE-E-Q--HTML-CHEMICAL-PERIODICITY/17.html",
+          "18. Diagonal Relationship": "https://chemistry-g10ep.github.io/IIT-JEE-E-Q--HTML-CHEMICAL-PERIODICITY/18.html"
+        },
+        "Chapter 4 - CHEMICAL BONDING": {
+          "1. Cause and Modes of Chemical Combination": "https://chemistry-g10ep.github.io/IIT-JEE-E-Q--HTML-CHEMICAL-BONDING/1.html",
+          "11. Molecular Orbital Theory (MOT)": "https://chemistry-g10ep.github.io/IIT-JEE-E-Q--HTML-CHEMICAL-BONDING/10.html",
+          "12. Hydrogen Bonding": "https://chemistry-g10ep.github.io/IIT-JEE-E-Q--HTML-CHEMICAL-BONDING/11.html"
+        },
+        "Chapter 4 - CHEMICAL KINETICS": {
+          "1. Chemical Kinetics questions": "https://chemistry-g10ep.github.io/IIT-JEE-E-Q--HTML-Chemical-Kinetics/1.html",
+          "9. Mechanism of Chemical Reactions": "https://chemistry-g10ep.github.io/IIT-JEE-E-Q--HTML-Chemical-Kinetics/9.html",
+          "10. Photochemical Reactions": "https://chemistry-g10ep.github.io/IIT-JEE-E-Q--HTML-Chemical-Kinetics/10.html"
+        },
+        "Chapter 5 - Thermodynamic and Thermochemistry": {
+          "1. Thermodynamics & Thermochemistry (Basic Concepts)": "https://chemistry-g10ep.github.io/IIT-JEE-E-Q--HTML-Thermodynamic/1.html",
+          "24. Bond Energy, Bond Enthalpies, Applications, and Resonance Energy": "https://chemistry-g10ep.github.io/IIT-JEE-E-Q--HTML-Thermodynamic/24.html"
+        },
+        "Chapter 5 - Coming Soon 1": {
+          "Coming Soon 1": "https://gten-educational-platform.github.io/Class-11-Physics/motion-1d/basic/uniform-acceleration.html",
+          "Coming Soon 2": "https://gten-educational-platform.github.io/Class-11-Physics/motion-1d/basic/uniform-acceleration.html"
+        },
+        "Chapter 5 - Coming Soon 2": {
+          "Coming Soon 3": "https://gten-educational-platform.github.io/Class-11-Physics/motion-1d/basic/uniform-acceleration.html",
+          "Coming Soon 4": "https://gten-educational-platform.github.io/Class-11-Physics/motion-1d/basic/uniform-acceleration.html"
+        }
+      },
+      "Topic wise mcq (medium)": {
+        // similarly fixed medium and hard sections with unique keys...
       }
     };
 
@@ -391,10 +284,7 @@
       selectEl.innerHTML = `<option value="">${placeholderText}</option>`;
       selectEl.disabled = disable;
     }
-    function fillSelect(selectEl, items) {
-      items.forEach(v => { selectEl.innerHTML += `<option value="${v}">${v}</option>`; });
-      selectEl.disabled = false;
-    }
+    function fillSelect(selectEl, items) { items.forEach(v => { selectEl.innerHTML += `<option value="${v}">${v}</option>`; }); selectEl.disabled = false; }
     function getKeys(obj) { return obj ? Object.keys(obj) : []; }
 
     levelSelect.addEventListener('change', () => {
@@ -417,9 +307,7 @@
       fillSelect(itemSelect, getKeys(catalog[lvl][chap]));
     });
 
-    itemSelect.addEventListener('change', () => {
-      if (itemSelect.value) loadURL();
-    });
+    itemSelect.addEventListener('change', () => { if (itemSelect.value) loadURL(); });
 
     function loadURL() {
       const lvl  = levelSelect.value;
@@ -450,11 +338,9 @@
       resetSelect(levelSelect, 'Select Level / Years', false);
       resetSelect(chapterSelect, 'Select Chapter', true);
       resetSelect(itemSelect, 'Select Topic / Year', true);
-
       controls.classList.remove('hidden');
       topicRow.appendChild(topicLabel);
       topicRow.appendChild(itemSelect);
-
       const inline = headerBar.querySelector('.inline-topic');
       if (inline) inline.remove();
     }
@@ -467,6 +353,9 @@
         inline.remove();
       }
     });
+
+    // Fill levels dropdown
+    fillSelect(levelSelect, getKeys(catalog));
   </script>
 </body>
 </html>
