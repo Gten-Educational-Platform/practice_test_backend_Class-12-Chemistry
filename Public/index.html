@@ -262,96 +262,289 @@
     }, 5000);
 
     // === Catalog JSON ===
-    const catalog = {
+   <!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Practice Test</title>
+<style>
+  body {
+    font-family: sans-serif;
+    margin: 15px;
+    background: linear-gradient(135deg, #f9f9f9, #e0f7fa);
+    color: #333;
+    font-size: 13px;
+  }
+  #loginContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    text-align: center;
+  }
+  #loginContainer input {
+    padding: 8px;
+    border: 2px solid #00796B;
+    border-radius: 5px;
+    font-size: 14px;
+    margin-bottom: 10px;
+    width: 250px;
+  }
+  #loginContainer button {
+    padding: 8px 12px;
+    border: 2px solid #00796B;
+    border-radius: 5px;
+    background-color: #e0f2f1;
+    color: #004D40;
+    font-size: 13px;
+    cursor: pointer;
+  }
+  #loginContainer button:hover {
+    background-color: #b2dfdb;
+  }
+  #appContainer {
+    display: none;
+  }
+  .header-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+  .header-bar h1 {
+    color: #006064;
+    font-size: 16px;
+    margin: 0;
+  }
+  label {
+    font-weight: bold;
+    color: #00796B;
+    margin-right: 4px;
+    font-size: 12px;
+  }
+  select, button {
+    margin: 4px;
+    padding: 5px 8px;
+    border: 2px solid #00796B;
+    border-radius: 5px;
+    background-color: #e0f2f1;
+    color: #004D40;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  select:hover, button:hover {
+    background-color: #b2dfdb;
+  }
+  button.back-btn {
+    background-color: #b71c1c;
+    color: white;
+    font-size: 12px;
+    padding: 5px 10px;
+  }
+  button.back-btn:hover {
+    background-color: #7f0000;
+  }
+  iframe {
+    width: 100%;
+    height: 450px;
+    border: 2px solid #004D40;
+    margin-top: 15px;
+    border-radius: 6px;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+  }
+  @media (max-width: 600px) {
+    body { font-size: 12px; }
+    .header-bar h1 { font-size: 14px; }
+    select, button { width: 100%; font-size: 11px; padding: 4px 6px; }
+    iframe { height: 350px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Login Screen -->
+<div id="loginContainer">
+  <h2>Login to Practice Test</h2>
+  <input type="email" id="emailInput" placeholder="Enter your email" required />
+  <button onclick="login()">Login</button>
+</div>
+
+<!-- Main App -->
+<div id="appContainer">
+  <div class="header-bar">
+    <h1>Practice Test</h1>
+    <button class="back-btn" onclick="resetAll()">Back</button>
+  </div>
+
+  <div id="controls">
+    <label for="levelSelect">Level / Years:</label>
+    <select id="levelSelect">
+      <option value="">Select Level / Years</option>
+    </select>
+
+    <label for="chapterSelect">Chapter:</label>
+    <select id="chapterSelect" disabled>
+      <option value="">Select Chapter</option>
+    </select>
+
+    <label for="itemSelect">Topic / Year:</label>
+    <select id="itemSelect" disabled>
+      <option value="">Select Topic / Year</option>
+    </select>
+  </div>
+
+  <iframe id="viewer" src=""></iframe>
+</div>
+
+<script>
+const BACKEND_URL = "https://practice-test-backend-iit-jee.onrender.com";
+
+// Login logic
+async function login() {
+  const email = document.getElementById("emailInput").value.trim().toLowerCase();
+  if (!email || !email.includes("@")) {
+    alert("Your E.Mail ID is not Registered. For registration call +91 9706380857.");
+    return;
+  }
+
+  const res = await fetch(`${BACKEND_URL}/login`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email })
+  });
+
+  const data = await res.json();
+  if (data.token) {
+    localStorage.setItem("studentEmail", email);
+    localStorage.setItem("sessionToken", data.token);
+    document.getElementById("loginContainer").style.display = "none";
+    document.getElementById("appContainer").style.display = "block";
+  } else {
+    alert("Login failed. Try again.");
+  }
+}
+
+// Auto-login if token is valid
+window.onload = async function() {
+  const savedEmail = localStorage.getItem("studentEmail");
+  const token = localStorage.getItem("sessionToken");
+  if (!savedEmail || !token) return;
+
+  const res = await fetch(`${BACKEND_URL}/validate`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email: savedEmail, token })
+  });
+
+  const data = await res.json();
+  if (data.valid) {
+    document.getElementById("loginContainer").style.display = "none";
+    document.getElementById("appContainer").style.display = "block";
+  } else {
+    localStorage.clear();
+  }
+};
+
+// Logout if token becomes invalid (another device)
+setInterval(async () => {
+  const email = localStorage.getItem("studentEmail");
+  const token = localStorage.getItem("sessionToken");
+  if (!email || !token) return;
+
+  const res = await fetch(`${BACKEND_URL}/validate`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, token })
+  });
+
+  const data = await res.json();
+  if (!data.valid) {
+    alert("⚠️ You have been logged out because this account was opened on another device.");
+    localStorage.clear();
+    location.reload();
+  }
+}, 5000);
+
+// --- Catalog JSON ---
+const catalog = {
   "Topic wise mcq (basic)": {
     "Chapter 1 - CHEMICAL ARITHMETIC": {
       "1. SCIENTIFIC NOTATION": "https://chemistry-g10ep.github.io/IIT-JEE-EASY-QUESTION-HTML/1. SCIENTIFIC NOTATION.html",
-      "16. Rules for filling of electrons in various orbitals-Aufbau’s principle,(n+l) Rule, Pauli’s exclusion principle, Hund’s Rule of maximum multiplicity": "https://chemistry-g10ep.github.io/IIT-JEE-E-Q--HTML-ATOMIC-STRUCTURE/16. Rules for filling of electrons in various orbitals-Aufbau’s principle,(n+l) Rule, Pauli’s exclusion principle, Hund’s Rule of maximum multiplicity.html",
-      "17. Electronic configurations, focusing on symmetrical distribution and exchange energy": "https://chemistry-g10ep.github.io/IIT-JEE-E-Q--HTML-ATOMIC-STRUCTURE/17. Electronic configurations, focusing on symmetrical distribution and exchange energy.html"
+      "16. Rules for filling of electrons": "https://chemistry-g10ep.github.io/IIT-JEE-E-Q--HTML-ATOMIC-STRUCTURE/16. Rules for filling of electrons.html",
+      "17. Electronic configurations": "https://chemistry-g10ep.github.io/IIT-JEE-E-Q--HTML-ATOMIC-STRUCTURE/17. Electronic configurations.html"
     },
-    "Chapter 3 - PERIODIC CLASSIFICATION": {
-      "1. Dobereiner’s law of triads (1829)": "https://chemistry-g10ep.github.io/IIT-JEE-E-Q--HTML-CHEMICAL-PERIODICITY/1. Dobereiner’s law of triads (1829).html",
-      "17. Atomic volume, Density, Melting and boiling points, Oxidation state, Magnetic properties, Hydration, Acid-base character of oxides, Hydride": "https://chemistry-g10ep.github.io/IIT-JEE-E-Q--HTML-CHEMICAL-PERIODICITY/17. Atomic volume, Density, Melting and boiling points, Oxidation state (Oxidation number, O.N.), Magnetic properties, Hydration and hydration, Acid-base-character of oxides, Hydride.html",
-      "18. Diagonal Relationship": "https://chemistry-g10ep.github.io/IIT-JEE-E-Q--HTML-CHEMICAL-PERIODICITY/18. Diagonal Relationship.html"
-    },
-    "Chapter 4 - CHEMICAL BONDING": {
-      "1. Cause and Modes of Chemical Combination": "https://chemistry-g10ep.github.io/IIT-JEE-E-Q--HTML-CHEMICAL-BONDING/1. Cause and Modes of Chemical Combination.html",
-      "2. Electrovalent Bond, covering conditions for formation and characteristics of electrovalent compounds": "https://chemistry-g10ep.github.io/IIT-JEE-E-Q--HTML-CHEMICAL-BONDING/2. Electrovalent Bond, covering conditions for formation and characteristics of electrovalent compounds.html",
-      "3. Covalent bond- Conditions for formation of covalent bond Characteristics of covalent compounds": "https://chemistry-g10ep.github.io/IIT-JEE-E-Q--HTML-CHEMICAL-BONDING/3. Covalent bond- Conditions for formation of covalent bond Characteristics of covalent compounds.html",
-      "4. Coordinate Covalent (Dative) Bonds": "https://chemistry-g10ep.github.io/IIT-JEE-E-Q--HTML-CHEMICAL-BONDING/4. Coordinate Covalent (Dative) Bonds.html",
-      "5. Dipole Moment and Fajan's Rule": "https://chemistry-g10ep.github.io/IIT-JEE-E-Q--HTML-CHEMICAL-BONDING/5. Dipole Moment and Fajan's Rule.html",
-      "6. Valence Bond Theory (VBT)": "https://chemistry-g10ep.github.io/IIT-JEE-E-Q--HTML-CHEMICAL-BONDING/6. Valence Bond Theory (VBT).html",
-      "7. Hybridization, covering characteristics and how to determine hybridization types": "https://chemistry-g10ep.github.io/IIT-JEE-E-Q--HTML-CHEMICAL-BONDING/7. Hybridization, covering characteristics and how to determine hybridization types.html",
-      "8. Resonance and Resonance Energy": "https://chemistry-g10ep.github.io/IIT-JEE-E-Q--HTML-CHEMICAL-BONDING/8. Resonance and Resonance Energy.html",
-      "9. Bond characteristics-Bond length, Bond energy, Bond angle": "https://chemistry-g10ep.github.io/IIT-JEE-E-Q--HTML-CHEMICAL-BONDING/9. Bond characteristics-Bond length, Bond energy, Bond angle.html",
-      "10. Expected Geometry vs Actual Geometry, based on the geometry transformations": "https://chemistry-g10ep.github.io/IIT-JEE-E-Q--HTML-CHEMICAL-BONDING/10.Expected Geometry vs Actual Geometry, based on the geometry transformations.html",
-      "11. Molecular Orbital Theory (MOT)": "https://chemistry-g10ep.github.io/IIT-JEE-E-Q--HTML-CHEMICAL-BONDING/10. Molecular Orbital Theory (MOT).html",
-      "12. Hydrogen Bonding, covering intermolecular and intramolecular bonds": "https://chemistry-g10ep.github.io/IIT-JEE-E-Q--HTML-CHEMICAL-BONDING/11. Hydrogen Bonding, covering intermolecular and intramolecular bonds.html"
-    },
-    "Chapter 4 - CHEMICAL KINETICS": {
-      "1. Chemical Kinetics questions (types of reactions- examples of very fast, moderate, very slow reactions)": "https://chemistry-g10ep.github.io/IIT-JEE-E-Q--HTML-Chemical-Kinetics/1. Chemical Kinetics questions (types of reactions- examples of very fast,moderate,very slow reactions).html",
-      "9. Mechanism of Chemical Reactions": "https://chemistry-g10ep.github.io/IIT-JEE-E-Q--HTML-Chemical-Kinetics/9. Mechanism of Chemical Reactions.html",
-      "10. Chemistry questions on Photochemical Reactions": "https://chemistry-g10ep.github.io/IIT-JEE-E-Q--HTML-Chemical-Kinetics/10. Chemistry questions on Photochemical Reactions.html"
-    },
-    "Chapter 5 - Thermodynamic and Thermochemistry": {
-      "1. Thermodynamics & Thermochemistry (Basic Concepts)": "https://chemistry-g10ep.github.io/IIT-JEE-E-Q--HTML-Thermodynamic/1. Thermodynamics & Thermochemistry (Basic Concepts).html",
-      "24. Bond Energy, Bond Enthalpies, Applications, and Resonance Energy": "https://chemistry-g10ep.github.io/IIT-JEE-E-Q--HTML-Thermodynamic/24. Bond Energy, Bond Enthalpies, Applications, and Resonance Energy.html"
-    },
-    "Chapter 5 - Coming Soon": {
-      "Coming Soon": "https://gten-educational-platform.github.io/Class-11-Physics/motion-1d/basic/uniform-acceleration.html"
-    }
-  },
-
-  "Topic wise mcq (medium)": {
-    "Chapter 1 - CHEMICAL ARITHMETIC": {
-      "1. Significant figures, Units for measurement, Matter and separation of mixture (MEDIUM)": "https://chemistry-g10ep.github.io/IIT-JEE--M--HTML-PDF-CHEMICAL-ARITHMETIC/1.Significant figures, Units for measurement, Matter and seperation of mixture(MEDIUM).html",
-      "6. Chemical stoichiometry -2": "https://chemistry-g10ep.github.io/IIT-JEE--M--HTML-PDF-CHEMICAL-ARITHMETIC/6. Chemical stoichiometry -2.html",
-      "6. Chemical stoichiometry -3": "https://chemistry-g10ep.github.io/IIT-JEE--M--HTML-PDF-CHEMICAL-ARITHMETIC/6. Chemical stoichiometry -3.html"
-    },
-    "Chapter 2 - STRUCTURE OF ATOM": {
-      "1. Discovery and Properties of anode, cathode rays, neutron and Nuclear structure-1": "https://chemistry-g10ep.github.io/IIT-JEE--M--HTML-PDF-STRUCTURE-OF-ATOM/1. Discovery and Properties of anode, cathode rays neutron and Nuclear structure-1.html",
-      "6. Quantum number, Electronic configuration and Shape of orbitals-7": "https://chemistry-g10ep.github.io/IIT-JEE--M--HTML-PDF-STRUCTURE-OF-ATOM/6. Quantum number, Electronic configuration and Shape of orbitals-7.html",
-      "6. Quantum number, Electronic configuration and Shape of orbitals-8": "https://chemistry-g10ep.github.io/IIT-JEE--M--HTML-PDF-STRUCTURE-OF-ATOM/6. Quantum number, Electronic configuration and Shape of orbitals-8.html"
-    },
-    "Chapter 3 - CHEMICAL PERIODICITY": {
-      "1. Extended or long form of periodic table -1": "https://chemistry-g10ep.github.io/IIT-JEE--M--HTML-PDF-CCHEMICAL-PERIODICITY/1. Extended or long form of periodic table -1.html",
-      "6. Valency and oxidation state-1": "https://chemistry-g10ep.github.io/IIT-JEE--M--HTML-PDF-CCHEMICAL-PERIODICITY/6. Valency and oxidation state-1.html",
-      "6. Valency and oxidation state-2": "https://chemistry-g10ep.github.io/IIT-JEE--M--HTML-PDF-CCHEMICAL-PERIODICITY/6. Valency and oxidation state-2.html"
-    }
-    // Add remaining chapters here, following same pattern
-  },
-
-  "Topic wise mcq (hard)": {
-    "Chapter 1 - Solution": {
-      "1. A-II": "https://chemistry-g10ep.github.io/IIT-JEE--H--Allen-O-II/solutionAllenO-II.html",
-      "Coming Soon": "https://l-platform.github.io/Class-11-Physics/units-measurements/basic/significant-figures.html"
-    },
-    "Chapter 2 - Chemical Kinetics": {
-      "1. A-II": "https://chemistry-g10ep.github.io/IIT-JEE--H--Allen-O-II/Allen-II-Chemical kinetics.html",
-      "Coming Soon": "https://gten-educational-platform.github.io/Class-11-Physics/motion-1d/basic/uniform-acceleration.html"
-    }
-    // Add remaining chapters here
-  },
-
-  "DPP Question And Solution": {
-    "All Chapters Included": {
-      "All Question, Answerkey and Solution Include": "https://gten-educational-platform.github.io/Class-12/chemistry dpp solution.html"
-    }
-  },
-
-  "PYQ mains Coming Soon": {
-    "Chapter 1 - Coming Soon": {
-      "Coming Soon": "https://gten-educational-platform.github.io/Class-12/new 7.html"
-    }
-  },
-
-  "PYQ advance Coming Soon": {
-    "Chapter 1 - Coming Soon": {
-      "2023 Set A Coming Soon": "https://gten-educational-platform.github.io/Class-12/new 7.html",
-      "2022 Set B Coming Soon": "https://gten-educational-platform.github.io/Class-11-Physics/pyq-board/2022-set-b.html"
+    "Chapter 3 - PERIODIC CLASIFICATION": {
+      "1. Dobereiner’s law of triads": "https://chemistry-g10ep.github.io/IIT-JEE-E-Q--HTML-CHEMICAL-PERIODICITY/1. Dobereiner’s law of triads.html",
+      "17. Atomic volume, Density, Melting and boiling points": "https://chemistry-g10ep.github.io/IIT-JEE-E-Q--HTML-CHEMICAL-PERIODICITY/17. Atomic volume, Density.html"
     }
   }
 };
+
+const levelSelect   = document.getElementById('levelSelect');
+const chapterSelect = document.getElementById('chapterSelect');
+const itemSelect    = document.getElementById('itemSelect');
+const viewer        = document.getElementById('viewer');
+
+function resetSelect(selectEl, placeholderText, disable = false) {
+  selectEl.innerHTML = `<option value="">${placeholderText}</option>`;
+  selectEl.disabled = disable;
+}
+
+function fillSelect(selectEl, items) {
+  items.forEach(v => selectEl.innerHTML += `<option value="${v}">${v}</option>`);
+  selectEl.disabled = false;
+}
+
+function getKeys(obj) { return obj ? Object.keys(obj) : []; }
+
+// Populate Level
+fillSelect(levelSelect, getKeys(catalog));
+
+// Level -> Chapter
+levelSelect.addEventListener('change', () => {
+  const lvl = levelSelect.value;
+  resetSelect(chapterSelect, 'Select Chapter', true);
+  resetSelect(itemSelect, 'Select Topic / Year', true);
+  viewer.src = '';
+  if (!lvl || !catalog[lvl]) return;
+  fillSelect(chapterSelect, getKeys(catalog[lvl]));
+});
+
+// Chapter -> Topic
+chapterSelect.addEventListener('change', () => {
+  const lvl  = levelSelect.value;
+  const chap = chapterSelect.value;
+  resetSelect(itemSelect, 'Select Topic / Year', true);
+  viewer.src = '';
+  if (!lvl || !chap || !catalog[lvl][chap]) return;
+  fillSelect(itemSelect, getKeys(catalog[lvl][chap]));
+});
+
+// Topic -> Viewer
+itemSelect.addEventListener('change', () => {
+  const lvl  = levelSelect.value;
+  const chap = chapterSelect.value;
+  const topic = itemSelect.value;
+  if (!lvl || !chap || !topic) return;
+  viewer.src = catalog[lvl][chap][topic];
+  viewer.style.height = "650px";
+});
+
+// Reset all
+function resetAll() {
+  viewer.src = '';
+  viewer.style.height = "450px";
+  resetSelect(levelSelect, 'Select Level / Years', false);
+  resetSelect(chapterSelect, 'Select Chapter', true);
+  resetSelect(itemSelect, 'Select Topic / Year', true);
+}
+</script>
+</body>
+</html>
+
 
     const levelSelect   = document.getElementById('levelSelect');
     const chapterSelect = document.getElementById('chapterSelect');
